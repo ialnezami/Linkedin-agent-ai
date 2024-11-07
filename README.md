@@ -43,8 +43,8 @@ The required libraries are:
 Clone the repository and navigate to the project folder:
 
 ```bash
-git clone <repository_url>
-cd <project_folder>
+git clone https://github.com/ialnezami/Linkedin-agent-ai.git
+cd Linkedin-agent-ai
 ```
 
 Then, install the required libraries:
