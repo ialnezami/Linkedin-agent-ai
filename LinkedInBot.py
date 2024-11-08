@@ -11,18 +11,19 @@ class LinkedInBot:
         self.profile_url = profile_url
         self.driver = webdriver.Firefox()
         self.linkedInManager = LinkedInManager()
-        
+        self.cookies = None
+        self.cookies_file=cookies_file
         self.login()
 
     def login(self):
         """Log in to LinkedIn using cookies."""
         self.driver.get("https://www.linkedin.com/login")
         # Load cookies
-        try:
-            with open(cookies_file, "rb") as file:
-                self.cookies = pickle.load(file)
-        except Exception as e:
-            self.save_cookies()
+        # try:
+        with open(self.cookies_file, "rb") as file:
+            self.cookies = pickle.load(file)
+        # except Exception as e:
+        #     self.save_cookies()
         # Add cookies to the session
         for cookie in self.cookies:
             self.driver.add_cookie(cookie)
@@ -48,9 +49,15 @@ class LinkedInBot:
         post_textbox = WebDriverWait(self.driver, 20).until(
             EC.presence_of_element_located((By.CLASS_NAME, "ql-editor"))
         )
-        content = self.linkedInManager.generate_new_post()
+        chosed_domain = self.chooseDomain()
+        content = self.linkedInManager.generate_new_post(chosed_domain)
         self.driver.execute_script("arguments[0].innerHTML += arguments[1];", post_textbox, content)
+        content =  WebDriverWait(self.driver, 20).until(
+            EC.presence_of_element_located((By.CLASS_NAME, "ql-editor")))
+        cleaned_content = content.replace('**', '')
+        self.driver.execute_script("arguments[0].innerHTML += arguments[1];", post_textbox, cleaned_content)
         
+
         # Find and click the "Post" button
         post_button = WebDriverWait(self.driver, 20).until(
             EC.element_to_be_clickable((By.XPATH, "//button[contains(@class, 'share-actions__primary-action artdeco-button')]"))
@@ -164,6 +171,14 @@ class LinkedInBot:
         print("Fetched all posts successfully.")
         print(posts)
         return posts
+    def chooseDomain(self):
+        #show a list of domains  self.linkedInManager.domains
+        print("Choose a domain:")
+        print("0 . Random")
+        for i, domain in enumerate(self.linkedInManager.domains, start=1):
+            print(f"{i}. {domain}")
+        domain_index = int(input("Enter the domain number: "))
+        return self.linkedInManager.domains[domain_index - 1]
 
     def close(self):
         """Close the browser."""
