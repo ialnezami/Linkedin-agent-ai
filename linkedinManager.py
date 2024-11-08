@@ -95,8 +95,11 @@ class LinkedInManager:
         
         return new_post  # Return for posting to LinkedIn
 
-    def generate_new_post(self):
+    def generate_new_post(self, domain):
         """Generate a new post by randomly selecting a domain and ensuring uniqueness."""
-        domain = random.choice(self.domains)  # Randomly select a domain
-        return self.post_to_linkedin(domain)
+        if domain:
+            return self.post_to_linkedin(domain)
+        else:
+            domain = random.choice(self.domains)  # Randomly select a domain
+            return self.post_to_linkedin(domain)
 
